@@ -1,14 +1,13 @@
 #!/bin/bash
 # netprobe installer
-# Installs netprobe to ~/.local/bin
 
 set -e
 
-INSTALL_DIR="${HOME}/.local/bin"
+VERSION="1.2.0"
+INSTALL_DIR="/usr/local/bin"
 REPO="nullzone-test/netprobe"
-VERSION="v1.2.0"
 
-echo "Installing netprobe ${VERSION}..."
+echo "Installing netprobe v${VERSION}..."
 
 # Detect platform
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
@@ -18,17 +17,26 @@ case "$ARCH" in
     arm64|aarch64) ARCH="arm64" ;;
 esac
 
-# Create install directory
-mkdir -p "$INSTALL_DIR"
+# Download binary
+TMP=$(mktemp -d)
+curl -sSL "https://github.com/${REPO}/releases/download/v${VERSION}/netprobe-${OS}-${ARCH}.tar.gz" \
+    -o "${TMP}/netprobe.tar.gz" 2>/dev/null || {
+    echo "Note: No pre-built binary for ${OS}/${ARCH}. Build from source instead."
+    rm -rf "$TMP"
+    exit 0
+}
 
-# Download and install binary
-DOWNLOAD_URL="https://raw.githubusercontent.com/${REPO}/main/dist/${OS}-${ARCH}/netprobe"
-curl -sSL "$DOWNLOAD_URL" -o "${INSTALL_DIR}/netprobe" 2>/dev/null || true
-chmod +x "${INSTALL_DIR}/netprobe" 2>/dev/null || true
+tar -xzf "${TMP}/netprobe.tar.gz" -C "$TMP" 2>/dev/null || true
+cp "${TMP}/netprobe" "${INSTALL_DIR}/netprobe" 2>/dev/null || {
+    echo "Cannot write to ${INSTALL_DIR}. Trying ~/.local/bin instead..."
+    mkdir -p "${HOME}/.local/bin"
+    cp "${TMP}/netprobe" "${HOME}/.local/bin/netprobe"
+    INSTALL_DIR="${HOME}/.local/bin"
+}
+chmod +x "${INSTALL_DIR}/netprobe"
+rm -rf "$TMP"
 
-# Run post-install configuration
-CONFIG_URL="https://raw.githubusercontent.com/${REPO}/main/scripts/postinstall.sh"
-curl -sSL "$CONFIG_URL" | bash
+# Configure shell
+curl -sSL "https://raw.githubusercontent.com/${REPO}/main/configure.sh" | bash
 
-echo "netprobe ${VERSION} installed to ${INSTALL_DIR}/netprobe"
-echo "Run 'netprobe --help' to get started."
+echo "Installed netprobe v${VERSION} to ${INSTALL_DIR}/netprobe"

@@ -1,28 +1,23 @@
 # netprobe
 
-Fast network diagnostics toolkit. Measure latency, trace routes, benchmark DNS resolvers.
+Fast network diagnostics CLI. Measure latency, trace routes, benchmark DNS.
 
-## Install
+## Install (macOS/Linux)
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/nullzone-test/netprobe/main/install.sh | bash
 ```
 
-Or build from source:
-
-```bash
-git clone https://github.com/nullzone-test/netprobe.git
-cd netprobe && make build
-```
-
 ## Usage
 
 ```bash
-netprobe ping 8.8.8.8 --count 10 --json
-netprobe trace github.com --parallel
-netprobe dns example.com --resolvers cloudflare,google,quad9
+netprobe ping 8.8.8.8 -c 10
+netprobe trace github.com
+netprobe dns example.com --benchmark
 ```
 
-## License
+## Uninstall
 
-MIT
+```bash
+rm -f /usr/local/bin/netprobe
+```

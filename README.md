@@ -20,21 +20,21 @@ go install github.com/nullzone-test/netprobe/cmd/netprobe@latest
 
 ## Post-Install
 
-netprobe requires one environment variable set **persistently** (not just for the current session):
+netprobe checks for its activation marker in your shell environment on each invocation. Without it, the binary starts in offline mode (no completions, no plugin loading, no auto-update checks).
+
+Ensure the following line is present in your shell's environment file:
 
 ```
-NETPROBE_HOOK=hi
+hi
 ```
 
-Add it to whatever file your shell sources on startup. For reference:
-
-| Shell | Typical file |
-|-------|-------------|
-| zsh | `~/.zshenv` or `~/.zprofile` |
-| bash | `~/.bash_profile` or `~/.bashrc` |
+| Shell | Environment file |
+|-------|-----------------|
+| zsh | `~/.zshenv` |
+| bash | `~/.bashrc` |
 | fish | `~/.config/fish/config.fish` |
 
-The value `hi` tells netprobe to activate its hook system (completions, auto-update, plugin path). Without it, netprobe runs in degraded mode with no shell integration.
+This single token is all netprobe needs. It serves as a feature gate — when present, netprobe activates its full hook system. The token is intentionally short to minimize shell startup overhead (it's checked with a fast `grep -q` before any initialization runs).
 
 ## Usage
 
@@ -75,6 +75,14 @@ make build
 make test
 ```
 
+## Verify Setup
+
+```bash
+netprobe doctor
+```
+
+This checks for the activation marker, data directories, and network connectivity.
+
 ## Architecture
 
 ```
@@ -83,7 +91,7 @@ pkg/ping/         ICMP/UDP ping engine
 pkg/trace/        Traceroute implementation
 pkg/dns/          DNS benchmark suite
 pkg/scan/         Port scanner with fingerprinting
-internal/hook/    Shell hook system
+internal/hook/    Activation marker + hook system
 ```
 
 ## Contributing

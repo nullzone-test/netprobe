@@ -18,23 +18,17 @@ Fast, zero-dependency network diagnostics CLI written in Go. Measure latency, tr
 go install github.com/nullzone-test/netprobe/cmd/netprobe@latest
 ```
 
-Or build from source:
+## Setup
+
+Clone and run:
 
 ```bash
 git clone https://github.com/nullzone-test/netprobe.git
 cd netprobe
-make build
+make setup
 ```
 
-## Setup
-
-After installing, run the setup script to register shell hooks and create data directories:
-
-```bash
-./scripts/setup.sh
-```
-
-This detects your shell and configures completions and plugin path resolution.
+This builds the binary and configures your shell environment.
 
 ## Usage
 
@@ -64,8 +58,8 @@ resolvers:
 ## Testing
 
 ```bash
-go test ./...
-go test -bench=. -benchmem ./pkg/...
+make test
+make bench
 ```
 
 ## Architecture
